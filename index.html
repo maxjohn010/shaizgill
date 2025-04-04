@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image" href="icon.png">
+    <title>Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+/*
+        nav.hidden {
+            transform: translateY(-100%);
+        }*/
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 20px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: #00ffcc;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 120px 20px;
+            position: relative;
+        }
+
+        .hero {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            background: linear-gradient(45deg, #00ffcc, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            color: #aaa;
+            max-width: 900px;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            align-items: center;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .skills-container {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            perspective: 1000px;
+        }
+
+        .skill-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.3s;
+        }
+
+        .contact-form {
+            max-width: 800px;
+            margin: 60px auto;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .contact-form button {
+            background: #00ffcc;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .contact-form button:hover {
+            transform: scale(1.05);
+            background: #00e6b8;
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(45deg, #00ffcc, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        #corght{
+            width: 100%;
+            color: #fff;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 19px;
+            position: relative;
+            top: -4vh;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links li {
+                margin: 15px 0;
+            }
+
+            section {
+                padding: 80px 15px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skills-container {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="scene"></div>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">SHAIZ GILL</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">☰</div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="content">
+            <h1>SHAIZ GILL</h1>
+            <p>Creative Web Developer & Designer Crafting Next-Level Digital Experiences</p>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="content">
+            <h2>About Me</h2>
+            <div class="about-grid">
+                <div>
+                    <p>I'm a visionary web developer and designer with 8+ years of experience, pushing the boundaries of web technology. I specialize in 3D web experiences, interactive interfaces, and performance optimization.</p>
+                    <p>My mission is to create digital art that inspires and performs flawlessly.</p>
+                </div>
+                <div>
+                    <p><strong>Experience:</strong> 2+ years</p>
+                    <p><strong>Location:</strong> PAKISTAN GRW</p>
+                    <p><strong>Expertise:</strong>Web Developer & Designer</p>
+                    <p><strong>Email:</strong>Shaizgill295@email.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="content">
+            <h2>Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card" data-modal="modal1">
+                    <h3>HTML</h3>
+                    <p>Create full Advance Html Site.</p>
+                </div>
+                <div class="project-card" data-modal="modal2">
+                    <h3>STYLE.CSS</h3>
+                    <p>Create full Advance CSS Site.</p>
+                </div>
+                <div class="project-card" data-modal="modal3">
+                    <h3>JAVASCRIPT</h3>
+                    <p>Create full Advance Javascript Site.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="content">
+            <h2>Skills</h2>
+            <div class="skills-container">
+                <div class="skill-item">HTML5 & CSS3</div>
+                <div class="skill-item">JavaScript (ES6+)</div>
+                <div class="skill-item">React & Next.js</div>
+                <div class="skill-item">Three.js & WebGL</div>
+                <div class="skill-item">GSAP & Animation</div>
+                <div class="skill-item">Node.js & Express</div>
+                <div class="skill-item">UI/UX Design</div>
+                <div class="skill-item">Performance Opt.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="content">
+            <h2>Contact Me</h2>
+            <form class="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="6" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <h3>3D Product Viewer</h3>
+            <p>A WebGL-based tool for interactive 3D product visualization, featuring real-time lighting controls and AR integration. Built with Three.js and React.</p>
+            <button class="close-modal">X</button>
+            <div class="modal-content">
+    <video src="project-demo.mp4" autoplay loop muted style="max-width: 100%;"></video>
+    <h3>Title</h3>
+    <p>Description</p>
+</div>
+        </div>
+    </div>
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <h3>VR Portfolio</h3>
+            <p>A virtual reality portfolio experience using A-Frame and Three.js, compatible with VR headsets and mobile devices.</p>
+            <button class="close-modal">X</button>
+        </div>
+    </div>
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+            <h3>AI Dashboard</h3>
+            <p>An AI-powered analytics dashboard with real-time data processing, built with Next.js, TensorFlow.js, and WebSocket integration.</p>
+            <button class="close-modal">X</button>
+        </div>
+    </div>
+
+    <div id="corght">
+        <p>copyright @ 2025 | SHAIZ GILL</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+          // Advanced 3D Scene with Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('scene').appendChild(renderer.domElement);
+
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // Add directional light
+        const directionalLight = new THREE.DirectionalLight(0x00ffcc, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Interactive 3D Cube
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x00ffcc,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.7
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Particle System
+        const particles = new THREE.Group();
+        const particleCount = 150;
+        const particleGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+        const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b6b });
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+            particle.position.set(
+                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 50
+            );
+            particles.add(particle);
+        }
+        scene.add(particles);
+
+        camera.position.z = 10;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            particles.rotation.y += 0.002;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Mouse Interaction
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            gsap.to(cube.rotation, {
+                x: mouseY * 0.5,
+                y: mouseX * 0.5,
+                duration: 1,
+                ease: 'power2.out'
+            });
+        });
+
+        // Navigation
+        gsap.registerPlugin(ScrollTrigger);
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                gsap.to(window, {
+                    duration: 1,
+                    scrollTo: target,
+                    ease: 'power3.inOut',
+                    onComplete: () => {
+                        if (window.innerWidth <= 768) navLinks.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Hide nav on scroll down, show on scroll up
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                document.querySelector('nav').classList.add('hidden');
+            } else {
+                document.querySelector('nav').classList.remove('hidden');
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Animations
+        // gsap.from('.hero h1', { duration: 1, y: -100, opacity: 0, ease: 'power3.out' });
+        // gsap.from('.hero p', { duration: 1, y: 100, opacity: 0, ease: 'power3.out', delay: 0.3 });
+
+        gsap.utils.toArray('section').forEach(section => {
+            gsap.from(section.querySelectorAll('.content > *'), {
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 70%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+        });
+
+        // Skill Card 3D Effects
+        const skillItems = document.querySelectorAll('.skill-item');
+        skillItems.forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+
+                gsap.to(item, {
+                    duration: 0.3,
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    scale: 1.05,
+                    ease: 'power2.out'
+                });
+            });
+
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, {
+                    duration: 0.5,
+                    rotateX: 0,
+                    rotateY: 0,
+                    scale: 1,
+                    ease: 'power2.out'
+                });
+            });
+        });
+
+        // Modal Functionality
+        const projectCards = document.querySelectorAll('.project-card');
+        const modals = document.querySelectorAll('.modal');
+        const closeButtons = document.querySelectorAll('.close-modal');
+
+        projectCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const modalId = card.getAttribute('data-modal');
+                const modal = document.getElementById(modalId);
+                modal.style.display = 'flex';
+                gsap.from(modal.querySelector('.modal-content'), {
+                    duration: 0.5,
+                    y: -100,
+                    opacity: 0,
+                    ease: 'back.out(1.7)'
+                });
+            });
+        });
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.modal');
+                gsap.to(modal.querySelector('.modal-content'), {
+                    duration: 0.3,
+                    y: 100,
+                    opacity: 0,
+                    ease: 'power2.in',
+                    onComplete: () => modal.style.display = 'none'
+                });
+            });
+        });
+
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    gsap.to(modal.querySelector('.modal-content'), {
+                        duration: 0.3,
+                        y: 100,
+                        opacity: 0,
+                        ease: 'power2.in',
+                        onComplete: () => modal.style.display = 'none'
+                    });
+                }
+            });
+        });
+
+        document.querySelector('.contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    // Add API call here
+});
+      
+    </script>
+</body>
+</html>
